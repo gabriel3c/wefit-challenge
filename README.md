@@ -9,16 +9,14 @@ The project was built using:
 - Styled-components and Styled-system
 
 
-## Running projetc
-1. Fork this repo,
-
-2. Install dependencies:
+## Running project
+1. Install dependencies:
 
    ```bash
    npm install
    ```
 
-3. Start the app:
+2. Start the app:
 
    ```bash
     npx expo start
