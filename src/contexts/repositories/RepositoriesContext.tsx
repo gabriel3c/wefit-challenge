@@ -20,6 +20,7 @@ import {
   storageSaveRepo,
 } from "@/src/storage/storageRepo";
 import { storageGetUser, storageSaveUser } from "@/src/storage/storageUser";
+import { router } from "expo-router";
 
 type ProviderProps = {
   children: React.ReactNode;
@@ -110,6 +111,7 @@ const RepositoriesProvider = ({ children }: ProviderProps) => {
       setSelectedRepo((prev) => ({ ...prev, favorite: true }));
 
       showNotification({ message: "Repositório favoritado." });
+      router.back();
     } catch (error) {
       showNotification({
         message: "Houve um erro ao favoritar, tente novamente.",
@@ -130,6 +132,7 @@ const RepositoriesProvider = ({ children }: ProviderProps) => {
           notification: false,
         }));
       showNotification({ message: "Repositório desfavoritado." });
+      router.back();
     } catch (error) {
       showNotification({
         message: "Houve um erro ao desfavoritar, tente novamente.",
