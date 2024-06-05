@@ -1,70 +1,79 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { useState } from "react";
+import { router } from "expo-router";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { ActivityIndicator, Pressable, ScrollView } from "react-native";
+import {
+  Column,
+  RepoCard,
+  Typography,
+  ChangeUserModal,
+} from "@/src/components";
+import { Button } from "react-native-paper";
+
+import { useRepositories } from "@/src/hooks";
+
+import LogoWhite from "@/assets/images/wefit-logo-white.svg";
 
 export default function HomeScreen() {
+  const [open, setOpen] = useState(false);
+  const { loading, githubRepos, addFavorite, setSelectedRepo } =
+    useRepositories();
+
+  if (loading)
+    return (
+      <Column flex={1} justifyContent="center" alignItems="center">
+        <ActivityIndicator size="large" color="#FFD02C" />
+      </Column>
+    );
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <Column bg="#f6f6f5">
+      {githubRepos.length > 0 ? (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ flexGrow: 1 }}
+          style={{ flexGrow: 1 }}
+        >
+          <Column gap={16} p="16px">
+            {githubRepos?.map((repo) => (
+              <Pressable
+                key={repo.fullName}
+                onPress={() => {
+                  setSelectedRepo(repo);
+                  router.push({ pathname: "/details" });
+                }}
+              >
+                <RepoCard handleFavorite={addFavorite} {...repo} />
+              </Pressable>
+            ))}
+          </Column>
+        </ScrollView>
+      ) : (
+        <Column
+          gap={16}
+          height={"100%"}
+          justifyContent="center"
+          alignItems="center"
+          p={16}
+        >
+          <LogoWhite height={80} width={80} style={{ marginBottom: 16 }} />
+          <Typography width="100%" fontSize={14} textAlign="justify">
+            Parece que você não tem um usuário do Github informado. Clique
+            abaixo e prencha o usuário que deseja buscar.
+          </Typography>
+          <Button
+            loading={loading}
+            style={{ borderRadius: 4, width: "100%" }}
+            contentStyle={{ padding: 4 }}
+            mode="contained"
+            buttonColor="#1976D2"
+            onPress={() => setOpen(true)}
+          >
+            Preencher usuário
+          </Button>
+        </Column>
+      )}
+      {open && <ChangeUserModal setOpen={setOpen} />}
+    </Column>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
